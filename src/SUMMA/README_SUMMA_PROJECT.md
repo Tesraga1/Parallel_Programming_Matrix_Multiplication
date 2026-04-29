@@ -1,6 +1,6 @@
 # SUMMA Matrix Multiplication - Group Project
 
-## Your Implementation: 3 Variants
+## Implementation: 3 Variants
 
 1. **summa_mpi.c** - MPI-only (CPU computation)
 2. **summa_mpi_cuda.c/.cu** - MPI+CUDA hybrid (GPU computation)
