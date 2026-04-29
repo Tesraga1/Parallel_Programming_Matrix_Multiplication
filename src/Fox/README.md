@@ -21,7 +21,7 @@ the Makefile.
 
 To run these programs it is recommended to create a bash script which loads
 in the needed modules - xl_r spectrum-mpi cuda/11.2 - and then using mpirun
-to run the executable file. It should look something like the following:
-#!/bin/bash
-module load xl_r spectrum-mpi cuda/11.2
+to run the executable file. It should look something like the following: \
+#!/bin/bash \
+module load xl_r spectrum-mpi cuda/11.2 \
 mpirun -np $SLURM_NPROCS /gpfs/u/home/PCPG/PCPGcnfr/barn/final_project/name_of_executable 12 (or 15 when using GPUs)
