@@ -29,7 +29,7 @@ extern "C" void gpu_block_mul(int *A, int *B, int *C, int n) {
     cudaMemcpy(dB, B, size, cudaMemcpyHostToDevice);
     cudaMemcpy(dC, C, size, cudaMemcpyHostToDevice);
 
-    dim3 threads(n, n);
+    dim3 threads(16,16);
 
     blockMulKernel<<<1, threads>>>(dA, dB, dC, n);
 

@@ -63,6 +63,7 @@ __global__ void matMul(int *A, int *B, int *C, int n) {
 }
 
 int main(int argc, char **argv) {
+    ticks start, end;
     int N;
 
     if (argc < 2) {
@@ -95,15 +96,17 @@ int main(int argc, char **argv) {
     dim3 threads(TILE, TILE);
     dim3 blocks((N + TILE - 1) / TILE, (N + TILE - 1) / TILE);
 
+    start = getticks();
     matMul<<<blocks, threads>>>(dA, dB, dC, N);
-
+    end = getticks();
     cudaMemcpy(C, dC, size, cudaMemcpyDeviceToHost);
 
-    printf("Result Matrix:\n");
-    for (int i = 0; i < N*N; i++) {
-        printf("%d ", C[i]);
-        if ((i+1) % N == 0) printf("\n");
-    }
+    //printf("Result Matrix:\n");
+    //for (int i = 0; i < N*N; i++) {
+    //    printf("%d ", C[i]);
+    //    if ((i+1) % N == 0) printf("\n");
+    //}
+    printf("Total time in CUDA kernel is %lf seconds \n", (double)(end - start) / (double)512000000.0);
 
     cudaFree(dA);
     cudaFree(dB);

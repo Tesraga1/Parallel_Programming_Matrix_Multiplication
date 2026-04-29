@@ -8,10 +8,25 @@
 
 extern void gpu_block_mul(int *A, int *B, int *C, int n);
 
+typedef unsigned long long ticks;
+// IBM POWER9 System clock with 512MHZ resolution.
+static __inline__ ticks getticks(void)
+{
+    unsigned int tbl, tbu0, tbu1;
+
+    do {
+        __asm__ __volatile__ ("mftbu %0" : "=r"(tbu0));
+        __asm__ __volatile__ ("mftb %0" : "=r"(tbl));
+        __asm__ __volatile__ ("mftbu %0" : "=r"(tbu1));
+    } while (tbu0 != tbu1);
+
+    return (((unsigned long long)tbu0) << 32) | tbl;
+}
+
 //#define N 4
 
 int main(int argc, char** argv) {
-
+    ticks start, end;
     int rank, size;
     int N;
 
@@ -82,7 +97,9 @@ int main(int argc, char** argv) {
                 displs[i*q + j] = i*N*block + j*block;
             }
         }
+        start = getticks();
     }
+
 
     // Scatter blocks
     MPI_Scatterv(A, sendcounts, displs, blockType,
@@ -129,11 +146,13 @@ int main(int argc, char** argv) {
                 0, comm2d);
 
     if (rank == 0) {
-        printf("Result Matrix:\n");
-        for (int i = 0; i < N*N; i++) {
-            printf("%d ", C[i]);
-            if ((i+1)%N==0) printf("\n");
-        }
+        end = getticks();
+        //printf("Result Matrix:\n");
+        //for (int i = 0; i < N*N; i++) {
+        //    printf("%d ", C[i]);
+        //    if ((i+1)%N==0) printf("\n");
+        //}
+        printf("Total time in MPI/Cuda process is %lf seconds \n", (double)(end - start) / (double)512000000.0);
     }
 
     free(A_local);

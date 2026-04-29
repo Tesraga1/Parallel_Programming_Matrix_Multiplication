@@ -167,6 +167,7 @@ int main(int argc, char** argv){
 //#define N 4   // Matrix size (must be divisible by sqrt(p))
 
 int main(int argc, char *argv[]) {
+    ticks start, end;
     int rank, size;
 
     int N;
@@ -206,25 +207,25 @@ int main(int argc, char *argv[]) {
 
     int *A_local = malloc(block * block * sizeof(int));
     int *B_local = malloc(block * block * sizeof(int));
-    int *C_local = calloc(block * block, sizeof(int));
+    int *C_local = malloc(block * block * sizeof(int));
 
     if (rank == 0) {
         A = malloc(N * N * sizeof(int));
         B = malloc(N * N * sizeof(int));
         C = malloc(N * N * sizeof(int));
 
-        printf("Matrix A:\n");
+        //printf("Matrix A:\n");
         for (int i = 0; i < N * N; i++) {
             A[i] = 2;
-            printf("%d ", A[i]);
-            if ((i + 1) % N == 0) printf("\n");
+            //printf("%d ", A[i]);
+            //if ((i + 1) % N == 0) printf("\n");
         }
 
-        printf("Matrix B:\n");
+        //printf("Matrix B:\n");
         for (int i = 0; i < N * N; i++) {
             B[i] = 2;
-            printf("%d ", B[i]);
-            if ((i + 1) % N == 0) printf("\n");
+            //printf("%d ", B[i]);
+            //if ((i + 1) % N == 0) printf("\n");
         }
     }
 
@@ -235,7 +236,7 @@ int main(int argc, char *argv[]) {
     MPI_Type_commit(&block_type);
 
     int *sendcounts = NULL;
-    int *displs = NULL;
+    long long *displs = NULL;
 
     if (rank == 0) {
         sendcounts = malloc(size * sizeof(int));
@@ -244,9 +245,10 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < q; i++) {
             for (int j = 0; j < q; j++) {
                 sendcounts[i * q + j] = 1;
-                displs[i * q + j] = i * N * block + j * block;
+                displs[i*q + j] = (i * block) * N + (j * block);
             }
         }
+        start = getticks();
     }
 
     // Scatter A and B
@@ -301,11 +303,14 @@ int main(int argc, char *argv[]) {
                 0, comm_2d);
 
     if (rank == 0) {
-        printf("Result Matrix C:\n");
+        end = getticks();
+        /*printf("Result Matrix C:\n");
         for (int i = 0; i < N * N; i++) {
             printf("%d ", C[i]);
             if ((i + 1) % N == 0) printf("\n");
         }
+         */
+        printf("Total time in MPI Process is %lf seconds \n", (double)(end - start) / (double)512000000.0);
     }
 
     // Cleanup
